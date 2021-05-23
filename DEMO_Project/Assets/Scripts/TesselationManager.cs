@@ -4,9 +4,11 @@ using UnityEngine;
 
 public class TesselationManager : MonoBehaviour
 {
-
+	[Range(1.0f, 3.0f)]
 	public float m_Radius = 1.0f;
+	[Range(1, 200)]
 	public int m_CountLong = 2;
+	[Range(1, 200)]
 	public int m_CountLat = 2;
     // Start is called before the first frame update
     void Start()

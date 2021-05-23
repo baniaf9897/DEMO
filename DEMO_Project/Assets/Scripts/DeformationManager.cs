@@ -9,11 +9,15 @@ public class DeformationManager : MonoBehaviour
     public GameObject refObject = null;
 
     [SerializeField]
-    [Range(0.5f, 3.0f)]
+    [Range(0.5f, 50.0f)]
     private float m_Height = 1;
 
+    public Gradient m_Colour = new Gradient();
     public AnimationCurve m_heightCurve;
 
+
+    public Texture2D m_temperatureTex = null;
+    public int m_textureSize = 512;
 
     Bounds m_meshBounds;
     Vector3[] refVertices = new Vector3[0];
@@ -51,7 +55,7 @@ public class DeformationManager : MonoBehaviour
 
         UpdateSphere();
         //UpdatePlane();
-
+        UpdateTexture();
     }
 
     public float GetTerrainHeight(float x, float z)
@@ -113,18 +117,55 @@ public class DeformationManager : MonoBehaviour
 
     }
 
-    /*public void UpdatePlane()
+    public void UpdateTexture()
     {
-        MeshFilter meshFilter = GetComponent<MeshFilter>();
-        Mesh mesh = meshFilter.sharedMesh;
-        Vector3[] vertices = mesh.vertices;
+        if (m_temperatureTex == null)
+        {
+            m_temperatureTex = new Texture2D(m_textureSize, m_textureSize);
+            m_temperatureTex.name = "TemperatureMap";
+            m_temperatureTex.wrapMode = TextureWrapMode.Repeat;
+        }
 
-        for (var i = 0; i < vertices.Length; i++)
-            vertices[i].y = GetTerrainHeight(transform.TransformPoint(vertices[i]));
+        if (m_temperatureTex.width != m_textureSize)
+            m_temperatureTex.Resize(m_textureSize, m_textureSize);
 
-        mesh.vertices = vertices;
-        mesh.RecalculateNormals();
-        mesh.RecalculateBounds();
+        Color color = new Color();
 
-    }*/
+        Vector3 p = new Vector3(0, 0, 0);
+        float u, v;
+        float invh = 1.0f / (float)m_temperatureTex.height;
+        float invw = 1.0f / (float)m_temperatureTex.width;
+
+        for (int z = 0; z < m_temperatureTex.height; z++)
+        {
+            v = z * invh;
+
+            for (int x = 0; x < m_temperatureTex.width; x++)
+            {
+                u = x * invw;
+                TransformUVtoWorld(u, v, ref p);
+
+                color = m_Colour.Evaluate(GetSphereHeight(p));
+                m_temperatureTex.SetPixel(x, z, color);
+            }
+        }
+
+        m_temperatureTex.Apply();
+
+        Renderer renderer = GetComponent<Renderer>();
+        renderer.sharedMaterial.mainTexture = m_temperatureTex;
+    }
+
+    public void TransformWorldToUV(Vector3 p, out float u, out float v)
+    {
+        // Transform from world space to texture space...
+        p = transform.InverseTransformPoint(p);
+        u = 0.5f + (p.x / m_meshBounds.size.x);
+        v = 0.5f + (p.z / m_meshBounds.size.z);
+    }
+
+    public void TransformUVtoWorld(float u, float v, ref Vector3 p)
+    {
+        p = transform.TransformPoint((u - 0.5f) * m_meshBounds.size.x, 0, (v - 0.5f) * m_meshBounds.size.z);
+    }
 }
