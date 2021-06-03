@@ -4,12 +4,14 @@ using UnityEngine;
 
 public class DeformationManager : MonoBehaviour
 {
-    public RandomManager randomManager = new RandomManager();
+    public RandomManager randomManager1 = new RandomManager();
+    public RandomManager randomManager2 = new RandomManager();
+    public RandomManager randomManager3 = new RandomManager();
 
     public GameObject refObject = null;
 
     [SerializeField]
-    [Range(0.5f, 50.0f)]
+    [Range(0.1f, 50.0f)]
     private float m_Height = 1;
 
     public Gradient m_Colour = new Gradient();
@@ -33,13 +35,31 @@ public class DeformationManager : MonoBehaviour
         Mesh mesh = meshFilter.sharedMesh;
         refVertices = mesh.vertices;
 
-        randomManager.m_frequency = 0.1f;
-        randomManager.m_gain = 0.1f;
-        randomManager.m_lacunarity = 0.1f;
-        randomManager.m_NumOctaves = 2;
-        randomManager.m_offsetX = 2;
-        randomManager.m_offsetY = 4;
-        randomManager.m_offsetZ = 1;
+        randomManager1.m_frequency = 0.1f;
+        randomManager1.m_gain = 0.1f;
+        randomManager1.m_lacunarity = 0.1f;
+        randomManager1.m_NumOctaves = 2;
+        randomManager1.m_offsetX = 2;
+        randomManager1.m_offsetY = 4;
+        randomManager1.m_offsetZ = 1;
+
+        randomManager2.m_frequency = 0.1f;
+        randomManager2.m_gain = 0.1f;
+        randomManager2.m_lacunarity = 0.1f;
+        randomManager2.m_NumOctaves = 2;
+        randomManager2.m_offsetX = 2;
+        randomManager2.m_offsetY = 4;
+        randomManager2.m_offsetZ = 1;
+
+
+        randomManager3.m_frequency = 0.1f;
+        randomManager3.m_gain = 0.1f;
+        randomManager3.m_lacunarity = 0.1f;
+        randomManager3.m_NumOctaves = 2;
+        randomManager3.m_offsetX = 2;
+        randomManager3.m_offsetY = 4;
+        randomManager3.m_offsetZ = 1;
+
 
     }
 
@@ -55,10 +75,10 @@ public class DeformationManager : MonoBehaviour
 
         UpdateSphere();
         //UpdatePlane();
-        UpdateTexture();
+        //UpdateTexture();
     }
 
-    public float GetTerrainHeight(float x, float z)
+   /* public float GetTerrainHeight(float x, float z)
     {
         return m_Height * m_heightCurve.Evaluate(GetHeight(x, z));
     }
@@ -76,44 +96,45 @@ public class DeformationManager : MonoBehaviour
     public float GetHeight(float x, float z)
     {
         return randomManager.FBM(x, z);
-    }
+    }*/
 
-    public float Get3DHeight(float x, float y, float z)
+    public float Get3DHeight(float x, float y, float z, RandomManager randomManager)
     {
         return randomManager.FBM3D(x, y, z);
     }
 
 
-    public float GetSphereHeight(Vector3 worldpos)
+    public float GetSphereHeight(Vector3 worldpos, RandomManager randomManager)
     {
-        return m_Height * (m_heightCurve.Evaluate(Get3DHeight(worldpos.x, worldpos.y, worldpos.z)));
+        float height = m_Height * (m_heightCurve.Evaluate(Get3DHeight(worldpos.x, worldpos.y, worldpos.z,randomManager)));
+        return height;
     }
 
     public void UpdateSphere()
     {
-        MeshFilter meshFilter = GetComponent<MeshFilter>();
-        Mesh mesh = meshFilter.sharedMesh;
-        Vector3[] vertices = mesh.vertices;
 
-        Vector3[] refVertices = transform.GetComponent<TesselationManager>().CreateSphereVertices();
+        Vector3[] vertices = (Vector3[])transform.GetComponent<TesselationManager>().m_origVertices.Clone();
 
-        for (var i = 0; i < vertices.Length; i++) {
-
-            Vector3 reference = new Vector3();
-            reference.Set(refVertices[i].x, refVertices[i].y, refVertices[i].z);
-            Vector3 displacement = reference.normalized * GetSphereHeight(transform.TransformPoint(refVertices[i]));
-
-
-            vertices[i].x = reference.x + displacement.x;
-            vertices[i].y = reference.y + displacement.y;
-            vertices[i].z = reference.z + displacement.z;
+        for(int i = 0; i < vertices.Length/3.0f; i++)
+        {
+            vertices[i] *= GetSphereHeight(vertices[i],randomManager1);
         }
+        for (int i = vertices.Length / 3; i < 2 * vertices.Length / 3.0f; i++)
+        {
+            vertices[i] *= GetSphereHeight(vertices[i], randomManager2);
+        }
+        for (int i = 2 * vertices.Length / 3; i < vertices.Length; i++)
+        {
+            vertices[i] *= GetSphereHeight(vertices[i], randomManager3);
+        }
+        MeshFilter meshFilter = GetComponent<MeshFilter>();
+        meshFilter.sharedMesh.vertices  = vertices;
+        meshFilter.sharedMesh.RecalculateBounds();
+        meshFilter.sharedMesh.RecalculateNormals();
+        meshFilter.sharedMesh.RecalculateTangents();
+        meshFilter.sharedMesh.Optimize();
 
-        Debug.Log(refVertices[0]);
-
-        mesh.vertices = vertices;
-        mesh.RecalculateNormals();
-        mesh.RecalculateBounds();
+        //meshFilter.sharedMesh.SetTriangles((int[])transform.GetComponent<TesselationManager>().m_origIndices.Clone(), 0);
 
     }
 
@@ -145,7 +166,7 @@ public class DeformationManager : MonoBehaviour
                 u = x * invw;
                 TransformUVtoWorld(u, v, ref p);
 
-                color = m_Colour.Evaluate(GetSphereHeight(p));
+                color = m_Colour.Evaluate(GetSphereHeight(p,randomManager1));
                 m_temperatureTex.SetPixel(x, z, color);
             }
         }
