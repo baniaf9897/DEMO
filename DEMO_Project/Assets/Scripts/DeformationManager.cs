@@ -8,6 +8,8 @@ public class DeformationManager : MonoBehaviour
     public RandomManager randomManager2 = new RandomManager();
     public RandomManager randomManager3 = new RandomManager();
 
+    public bool isCalculating = false;
+
     public GameObject refObject = null;
 
     [SerializeField]
@@ -66,7 +68,8 @@ public class DeformationManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
+        UpdateSphere();
+
     }
 
     private void OnValidate()
@@ -103,7 +106,7 @@ public class DeformationManager : MonoBehaviour
         return randomManager.FBM3D(x, y, z);
     }
 
-
+    
     public float GetSphereHeight(Vector3 worldpos, RandomManager randomManager)
     {
         float height = m_Height * (m_heightCurve.Evaluate(Get3DHeight(worldpos.x, worldpos.y, worldpos.z,randomManager)));
@@ -112,10 +115,12 @@ public class DeformationManager : MonoBehaviour
 
     public void UpdateSphere()
     {
-
+        isCalculating = true;
         Vector3[] vertices = (Vector3[])transform.GetComponent<TesselationManager>().m_origVertices.Clone();
-
-        for(int i = 0; i < vertices.Length/3.0f; i++)
+        
+        //Vector3[] vertices = transform.GetComponent<MeshFilter>().sharedMesh.vertices;
+        
+        for (int i = 0; i < vertices.Length/3.0f; i++)
         {
             vertices[i] *= GetSphereHeight(vertices[i],randomManager1);
         }
@@ -135,7 +140,7 @@ public class DeformationManager : MonoBehaviour
         meshFilter.sharedMesh.Optimize();
 
         //meshFilter.sharedMesh.SetTriangles((int[])transform.GetComponent<TesselationManager>().m_origIndices.Clone(), 0);
-
+        isCalculating = false;
     }
 
     public void UpdateTexture()
