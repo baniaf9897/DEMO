@@ -28,8 +28,18 @@ public class OSC_Reveiver : MonoBehaviour
             float spectralSharpness = message.GetFloat(3);
 
             transform.GetComponent<DeformationManager>().randomManager1.m_frequency = spectralCentroid/1000.0f;
-            transform.GetComponent<DeformationManager>().randomManager2.m_frequency = spectralFlux / 1000.0f;
-            transform.GetComponent<DeformationManager>().randomManager3.m_frequency = spectralSharpness / 1000.0f;
+            transform.GetComponent<DeformationManager>().randomManager2.m_frequency = spectralCentroid / 1000.0f;
+            transform.GetComponent<DeformationManager>().randomManager3.m_frequency = spectralCentroid / 1000.0f;
+
+            transform.GetComponent<DeformationManager>().randomManager1.m_gain = spectralSharpness / 1000.0f;
+            transform.GetComponent<DeformationManager>().randomManager2.m_gain = spectralSharpness / 1000.0f;
+            transform.GetComponent<DeformationManager>().randomManager3.m_gain = spectralSharpness / 1000.0f;
+
+
+            transform.GetComponent<DeformationManager>().randomManager1.m_lacunarity = spectralFlux / 100.0f;
+            transform.GetComponent<DeformationManager>().randomManager2.m_lacunarity = spectralFlux / 100.0f;
+            transform.GetComponent<DeformationManager>().randomManager3.m_lacunarity = spectralFlux / 100.0f;
+
 
             // transform.GetComponent<DeformationManager>().UpdateSphere();
         }

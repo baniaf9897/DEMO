@@ -11,7 +11,7 @@ public class TesselationManager : MonoBehaviour
 	[Range(1, 200)]
 	public int m_CountLat = 2;
 
-    [Range(1, 5)]
+    [Range(1, 10)]
     public int m_Granularity = 2;
 
     public Material m_Material;
