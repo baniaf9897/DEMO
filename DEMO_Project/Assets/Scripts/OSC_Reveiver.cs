@@ -7,6 +7,26 @@ public class OSC_Reveiver : MonoBehaviour
 
     public OSC osc;
 
+    float rotation = 0.0f;
+
+
+
+    int activeInteraction;
+    float spectralCentroid;
+    float spectralFlux;
+    float spectralSharpness;
+
+
+
+    float minFreq = 2.0f;
+    float maxFreq = 10.0f;
+
+    float minLuc = 0.1f;
+    float maxLuc = 10.0f;
+
+    float minGain = 0.1f;
+    float maxGain = 2.0f;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -20,35 +40,51 @@ public class OSC_Reveiver : MonoBehaviour
         //m_spectralFlux 
         //m_spectralSharpness
         if (!transform.GetComponent<DeformationManager>().isCalculating) {
-            Debug.Log("Calc");
+            activeInteraction = message.GetInt(0);
+            spectralCentroid = message.GetFloat(1);
+            spectralFlux = message.GetFloat(2);
+            spectralSharpness = message.GetFloat(3);
 
-            int activeInteraction = message.GetInt(0);
-            float spectralCentroid = message.GetFloat(1);
-            float spectralFlux = message.GetFloat(2);
-            float spectralSharpness = message.GetFloat(3);
-
-            transform.GetComponent<DeformationManager>().randomManager1.m_frequency = spectralCentroid/1000.0f;
-            transform.GetComponent<DeformationManager>().randomManager2.m_frequency = spectralCentroid / 1000.0f;
-            transform.GetComponent<DeformationManager>().randomManager3.m_frequency = spectralCentroid / 1000.0f;
-
-            transform.GetComponent<DeformationManager>().randomManager1.m_gain = spectralSharpness / 1000.0f;
-            transform.GetComponent<DeformationManager>().randomManager2.m_gain = spectralSharpness / 1000.0f;
-            transform.GetComponent<DeformationManager>().randomManager3.m_gain = spectralSharpness / 1000.0f;
-
-
-            transform.GetComponent<DeformationManager>().randomManager1.m_lacunarity = spectralFlux / 100.0f;
-            transform.GetComponent<DeformationManager>().randomManager2.m_lacunarity = spectralFlux / 100.0f;
-            transform.GetComponent<DeformationManager>().randomManager3.m_lacunarity = spectralFlux / 100.0f;
-
-
-            // transform.GetComponent<DeformationManager>().UpdateSphere();
+            Debug.Log(activeInteraction);
         }
-        //Debug.Log("Value received :" + activeInteraction);
     }
 
     // Update is called once per frame
     void Update()
     {
-        
+
+        spectralSharpness = spectralSharpness * (maxFreq - minFreq) + minFreq;
+        spectralFlux = spectralFlux * (maxLuc - minLuc) + minLuc;
+        spectralCentroid = spectralCentroid * (maxGain - minGain) + minGain;
+
+
+        if (activeInteraction == 0)
+        {
+            rotation = spectralFlux * 10.0f;
+            if(rotation > 0.0 && rotation < 50.0f)
+                transform.Rotate(new Vector3(0.0f, rotation, 0.0f), Space.Self);
+            else
+                transform.Rotate(new Vector3(0.0f, 2.0f, 0.0f), Space.Self);
+
+        }
+        else
+        {
+            
+            transform.GetComponent<DeformationManager>().randomManager1.m_frequency = spectralSharpness;
+            transform.GetComponent<DeformationManager>().randomManager2.m_frequency = spectralSharpness;
+            transform.GetComponent<DeformationManager>().randomManager3.m_frequency = spectralSharpness;
+
+            transform.GetComponent<DeformationManager>().randomManager1.m_gain = spectralCentroid;
+            transform.GetComponent<DeformationManager>().randomManager2.m_gain = spectralCentroid;
+            transform.GetComponent<DeformationManager>().randomManager3.m_gain = spectralCentroid;
+
+
+            transform.GetComponent<DeformationManager>().randomManager1.m_lacunarity = spectralFlux;
+            transform.GetComponent<DeformationManager>().randomManager2.m_lacunarity = spectralFlux;
+            transform.GetComponent<DeformationManager>().randomManager3.m_lacunarity = spectralFlux;
+
+        }
+
+   
     }
 }
