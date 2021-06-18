@@ -15,7 +15,7 @@ public class OSC_Reveiver : MonoBehaviour
     float spectralCentroid;
     float spectralFlux;
     float spectralSharpness;
-
+    float volume;
 
 
     float minFreq = 2.0f;
@@ -39,13 +39,13 @@ public class OSC_Reveiver : MonoBehaviour
         //m_spectralCentroid
         //m_spectralFlux 
         //m_spectralSharpness
+        //m_volume
         if (!transform.GetComponent<DeformationManager>().isCalculating) {
             activeInteraction = message.GetInt(0);
             spectralCentroid = message.GetFloat(1);
             spectralFlux = message.GetFloat(2);
             spectralSharpness = message.GetFloat(3);
-
-            Debug.Log(activeInteraction);
+            volume = message.GetFloat(4);
         }
     }
 
@@ -60,8 +60,8 @@ public class OSC_Reveiver : MonoBehaviour
 
         if (activeInteraction == 0)
         {
-            rotation = spectralFlux * 10.0f;
-            if(rotation > 0.0 && rotation < 50.0f)
+            rotation = volume * 10.0f;
+            if(rotation >= 0.0 && rotation < 50.0f)
                 transform.Rotate(new Vector3(0.0f, rotation, 0.0f), Space.Self);
             else
                 transform.Rotate(new Vector3(0.0f, 2.0f, 0.0f), Space.Self);
