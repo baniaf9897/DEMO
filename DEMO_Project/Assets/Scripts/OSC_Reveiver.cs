@@ -17,6 +17,10 @@ public class OSC_Reveiver : MonoBehaviour
     float spectralSharpness;
     float volume;
 
+    float frequency;
+    float lucranity;
+    float gain;
+
 
     float minFreq = 2.0f;
     float maxFreq = 10.0f;
@@ -53,35 +57,47 @@ public class OSC_Reveiver : MonoBehaviour
     void Update()
     {
 
-        spectralSharpness = spectralSharpness * (maxFreq - minFreq) + minFreq;
-        spectralFlux = spectralFlux * (maxLuc - minLuc) + minLuc;
-        spectralCentroid = spectralCentroid * (maxGain - minGain) + minGain;
+        frequency = spectralSharpness * (maxFreq - minFreq) + minFreq;
+        lucranity = spectralFlux * (maxLuc - minLuc) + minLuc;
+        gain = (1-volume) * (maxGain - minGain) + minGain;
 
 
         if (activeInteraction == 0)
         {
-            rotation = volume * 10.0f;
+            rotation = volume * volume * volume * 10.0f;
+            if (rotation < 1.0f)
+                rotation = 0.0f;
+
             if(rotation >= 0.0 && rotation < 50.0f)
                 transform.Rotate(new Vector3(0.0f, rotation, 0.0f), Space.Self);
             else
-                transform.Rotate(new Vector3(0.0f, 2.0f, 0.0f), Space.Self);
+                transform.Rotate(new Vector3(0.0f, 0.0f, 0.0f), Space.Self);
 
         }
         else
         {
-            
-            transform.GetComponent<DeformationManager>().randomManager1.m_frequency = spectralSharpness;
-            transform.GetComponent<DeformationManager>().randomManager2.m_frequency = spectralSharpness;
-            transform.GetComponent<DeformationManager>().randomManager3.m_frequency = spectralSharpness;
 
-            transform.GetComponent<DeformationManager>().randomManager1.m_gain = spectralCentroid;
-            transform.GetComponent<DeformationManager>().randomManager2.m_gain = spectralCentroid;
-            transform.GetComponent<DeformationManager>().randomManager3.m_gain = spectralCentroid;
+            if (transform.GetComponent<DeformationManager>().randomManager1.m_frequency < frequency)
+            {
+                transform.GetComponent<DeformationManager>().randomManager1.m_frequency += frequency / 70.0f;
+                transform.GetComponent<DeformationManager>().randomManager2.m_frequency += frequency / 70.0f;
+                transform.GetComponent<DeformationManager>().randomManager3.m_frequency += frequency / 70.0f;
+            }
+            else
+            {
+                transform.GetComponent<DeformationManager>().randomManager1.m_frequency -= 0.01f;
+                transform.GetComponent<DeformationManager>().randomManager2.m_frequency -= 0.01f;
+                transform.GetComponent<DeformationManager>().randomManager3.m_frequency -= 0.01f;
+            }
+
+            transform.GetComponent<DeformationManager>().randomManager1.m_gain = gain;
+            transform.GetComponent<DeformationManager>().randomManager2.m_gain = gain;
+            transform.GetComponent<DeformationManager>().randomManager3.m_gain = gain;
 
 
-            transform.GetComponent<DeformationManager>().randomManager1.m_lacunarity = spectralFlux;
-            transform.GetComponent<DeformationManager>().randomManager2.m_lacunarity = spectralFlux;
-            transform.GetComponent<DeformationManager>().randomManager3.m_lacunarity = spectralFlux;
+            transform.GetComponent<DeformationManager>().randomManager1.m_lacunarity = lucranity;
+            transform.GetComponent<DeformationManager>().randomManager2.m_lacunarity = lucranity;
+            transform.GetComponent<DeformationManager>().randomManager3.m_lacunarity = lucranity;
 
         }
 
