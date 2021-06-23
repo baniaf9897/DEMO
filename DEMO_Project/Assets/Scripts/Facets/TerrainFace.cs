@@ -103,7 +103,16 @@ public class TerrainFace
 
     public float GetSphereHeight(Vector3 worldpos, RandomManager randomManager)
     {
-        float height = 2.0f * (Get3DHeight(worldpos.x, worldpos.y, worldpos.z, randomManager));
+        float height = 2.3f * (Get3DHeight(worldpos.x, worldpos.y, worldpos.z, randomManager));
         return height;
-     }
     }
+    
+    public Vector3 GetEstimatedNormal()
+    {
+        Vector2 percent = new Vector2(resolution/2, resolution / 2) / (resolution - 1);
+
+        Vector3 pointOnUnitCube = localUp + (percent.x - .5f) * 2 * axisA + (percent.y - .5f) * 2 * axisB;
+        Vector3 pointOnUnitSphere = pointOnUnitCube.normalized;
+        return pointOnUnitSphere;
+    }
+}

@@ -10,7 +10,7 @@ public class OSCReceiverFace : MonoBehaviour
 
 
     float rotation = 0.0f;
-
+    Color oldColor = new Color(0,0.96f,1);
 
 
     int activeInteraction;
@@ -47,14 +47,41 @@ public class OSCReceiverFace : MonoBehaviour
         //m_spectralSharpness
         //m_volume
     if(activeInteraction != message.GetInt(0)){
+
+
             planet = transform.GetComponent<Planet>();
-            planet.GetNextFace();
-    }
-    activeInteraction = message.GetInt(0);
-    spectralCentroid = message.GetFloat(1);
-    spectralFlux = message.GetFloat(2);
-    spectralSharpness = message.GetFloat(3);
-    volume = message.GetFloat(4);
+            GameObject faceGameObject = planet.GetCurrentFaceGameObject();
+            faceGameObject.GetComponent<Renderer>().material.color = oldColor;
+            TerrainFace face = planet.GetNextFace();
+
+            if(message.GetInt(0) == 1)
+            {
+                faceGameObject = planet.GetCurrentFaceGameObject();
+                
+
+                oldColor = faceGameObject.GetComponent<Renderer>().material.color;
+                faceGameObject.GetComponent<Renderer>().material.color = new Color(1, 0, 0);
+
+
+                Quaternion rot = transform.rotation;
+                Quaternion q = Quaternion.FromToRotation(rot * face.GetEstimatedNormal(), new Vector3(0, 0, -10));
+
+                Debug.DrawLine(Vector3.zero, rot * face.GetEstimatedNormal() * 10.0f, Color.blue, 10);
+                Debug.DrawLine(Vector3.zero, new Vector3(0, 0, -10) , Color.blue, 10);
+
+                // TODO!
+                //transform.Rotate(q.eulerAngles);
+                //transform.rotation = Quaternion.LookRotation( rot * face.GetEstimatedNormal());
+
+            }
+        }
+    
+        
+        activeInteraction = message.GetInt(0);
+        spectralCentroid = message.GetFloat(1);
+        spectralFlux = message.GetFloat(2);
+        spectralSharpness = message.GetFloat(3);
+        volume = message.GetFloat(4);
         
     }
 
@@ -88,7 +115,8 @@ public class OSCReceiverFace : MonoBehaviour
             TerrainFace face = planet.GetCurrentFace();
             GameObject faceGameObject = planet.GetCurrentFaceGameObject();
 
-            transform.LookAt(face.localUp);
+
+           
             
            if (frequency < face.randomManager.m_frequency)
             {
