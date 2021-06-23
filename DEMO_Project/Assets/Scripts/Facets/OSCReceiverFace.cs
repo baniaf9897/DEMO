@@ -24,14 +24,14 @@ public class OSCReceiverFace : MonoBehaviour
     float gain;
 
 
-    float minFreq = 2.0f;
-    float maxFreq = 10.0f;
+    static public float minFreq = 0.0f;
+    static public float maxFreq = 10.0f;
 
-    float minLuc = 0.1f;
-    float maxLuc = 10.0f;
+    static public float minLuc = 0.0f;
+    static public float maxLuc = 10.0f;
 
-    float minGain = 0.1f;
-    float maxGain = 2.0f;
+    static public float minGain = 0.0f;
+    static public float maxGain = 2.0f;
 
     // Start is called before the first frame update
     void Start()
@@ -111,28 +111,23 @@ public class OSCReceiverFace : MonoBehaviour
         else
         {
             planet = transform.GetComponent<Planet>();
-
-            TerrainFace face = planet.GetCurrentFace();
-            GameObject faceGameObject = planet.GetCurrentFaceGameObject();
-
-
-           
+            TerrainFace face = planet.GetCurrentFace();           
             
-           if (frequency < face.randomManager.m_frequency)
+           if (frequency < face.shapeGenerator.randomManager.m_frequency)
             {
-                face.randomManager.m_frequency -= frequency/100.0f;
-                face.randomManager.m_lacunarity -= lucranity / 100.0f;
-                face.randomManager.m_gain -= gain / 100.0f;
+                face.shapeGenerator.randomManager.addFreq(-1 * frequency / 100.0f);
+                face.shapeGenerator.randomManager.addLuc(-1 * lucranity / 100.0f);
+                face.shapeGenerator.randomManager.addGain(-1 * gain / 100.0f); 
             }
             else
             {
-                face.randomManager.m_frequency += frequency / 100.0f;
-                face.randomManager.m_lacunarity += lucranity / 100.0f;
-                face.randomManager.m_gain += gain / 100.0f;
+                face.shapeGenerator.randomManager.addFreq(frequency / 100.0f);
+                face.shapeGenerator.randomManager.addLuc(lucranity / 100.0f);
+                face.shapeGenerator.randomManager.addGain(gain / 100.0f);
             }
            
 
-            face.DeformMesh();
+            face.ConstructMesh();
         }
 
 

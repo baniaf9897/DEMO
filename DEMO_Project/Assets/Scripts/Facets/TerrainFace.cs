@@ -5,41 +5,25 @@ using UnityEngine;
 public class TerrainFace
 {
 
-    ShapeGenerator shapeGenerator;
-    Vector3[] origVertices;
+    public ShapeGenerator shapeGenerator;
     Mesh mesh;
     int resolution;
     public  Vector3 localUp;
     Vector3 axisA;
     Vector3 axisB;
-    public RandomManager randomManager;
 
-    bool random = false;
-    public TerrainFace(ShapeGenerator shapeGenerator, Mesh mesh, int resolution, Vector3 localUp, bool random)
+    public TerrainFace(ShapeGenerator shapeGenerator, Mesh mesh, int resolution, Vector3 localUp)
     {
         this.shapeGenerator = shapeGenerator;
         this.mesh = mesh;
         this.resolution = resolution;
         this.localUp = localUp;
-        this.random = random;
 
         axisA = new Vector3(localUp.y, localUp.z, localUp.x);
         axisB = Vector3.Cross(localUp, axisA);
 
-        Debug.Log(axisA);
-        InitRandomManager();
     }
 
-    void InitRandomManager()
-    {
-        randomManager.m_frequency = 0.1f;
-        randomManager.m_gain = 0.1f;
-        randomManager.m_lacunarity = 0.1f;
-        randomManager.m_NumOctaves = 2;
-        randomManager.m_offsetX = 2;
-        randomManager.m_offsetY = 4;
-        randomManager.m_offsetZ = 1;
-    }
 
     public void ConstructMesh()
     {
@@ -73,40 +57,10 @@ public class TerrainFace
         }
         mesh.Clear();
         mesh.vertices = vertices;
-        origVertices = vertices;
         mesh.triangles = triangles;
         mesh.RecalculateNormals();
     }
 
-    public void DeformMesh()
-    {
-        Vector3[] vertices = origVertices.Clone() as Vector3[];
-
-        for (int i = 0; i < vertices.Length ; i++)
-        {
-            vertices[i] *= GetSphereHeight(vertices[i], randomManager);
-        }
-      
-      
-        mesh.vertices = vertices;
-        mesh.RecalculateBounds();
-        mesh.RecalculateNormals();
-        mesh.RecalculateTangents();
-        mesh.Optimize();
-
-    }
-    public float Get3DHeight(float x, float y, float z, RandomManager randomManager)
-    {
-        return randomManager.FBM3D(x, y, z);
-    }
-
-
-    public float GetSphereHeight(Vector3 worldpos, RandomManager randomManager)
-    {
-        float height = 2.3f * (Get3DHeight(worldpos.x, worldpos.y, worldpos.z, randomManager));
-        return height;
-    }
-    
     public Vector3 GetEstimatedNormal()
     {
         Vector2 percent = new Vector2(resolution/2, resolution / 2) / (resolution - 1);

@@ -81,7 +81,6 @@ public class Planet : MonoBehaviour
     }
     void Initialize()
     {
-        shapeGenerator = new ShapeGenerator(height);
 
         if (meshFilters == null || meshFilters.Length == 0)
         {
@@ -102,6 +101,8 @@ public class Planet : MonoBehaviour
 
         for (int i = 0; i < 24; i++)
         {
+            shapeGenerator = new ShapeGenerator(height);
+
             if (meshFilters[i] == null)
             {
                 GameObject meshObj = new GameObject("mesh");
@@ -113,11 +114,9 @@ public class Planet : MonoBehaviour
                 meshFilters[i] = meshObj.AddComponent<MeshFilter>();
                 meshFilters[i].sharedMesh = new Mesh();
 
-                faceGameObjects[i] = meshObj;
             }
-
-            
-            terrainFaces[i] = new TerrainFace(shapeGenerator, meshFilters[i].sharedMesh, resolution, directions[i], false);
+            faceGameObjects[i] = meshFilters[i].gameObject;
+            terrainFaces[i] = new TerrainFace(shapeGenerator, meshFilters[i].sharedMesh, resolution, directions[i]);
         }
     }
 
