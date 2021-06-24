@@ -46,6 +46,8 @@ public class OSCReceiverFace : MonoBehaviour
         //m_spectralFlux 
         //m_spectralSharpness
         //m_volume
+
+     // change of interaction mode
     if(activeInteraction != message.GetInt(0)){
 
 
@@ -73,6 +75,12 @@ public class OSCReceiverFace : MonoBehaviour
                 //transform.Rotate(q.eulerAngles);
                 //transform.rotation = Quaternion.LookRotation( rot * face.GetEstimatedNormal());
 
+            }
+            else
+            {
+                //Take a screenshot every time active interaction is finished
+                Debug.Log(Application.dataPath + "/Screenshots/" + GetCurrentTime());
+                ScreenCapture.CaptureScreenshot(Application.dataPath + "/Screenshots/" + GetCurrentTime() + ".png");
             }
         }
     
@@ -131,5 +139,10 @@ public class OSCReceiverFace : MonoBehaviour
         }
 
 
+    }
+
+    string GetCurrentTime()
+    {
+        return System.DateTime.Now.ToString().Replace("/","-").Replace(" ", "_").Replace(":", "-");
     }
 }
