@@ -54,10 +54,11 @@ public class OSCReceiverFace : MonoBehaviour
             planet = transform.GetComponent<Planet>();
             GameObject faceGameObject = planet.GetCurrentFaceGameObject();
             faceGameObject.GetComponent<Renderer>().material.color = oldColor;
-            TerrainFace face = planet.GetNextFace();
 
             if(message.GetInt(0) == 1)
             {
+                TerrainFace face = planet.GetNextFace();
+
                 faceGameObject = planet.GetCurrentFaceGameObject();
                 
 
@@ -66,14 +67,11 @@ public class OSCReceiverFace : MonoBehaviour
 
 
                 Quaternion rot = transform.rotation;
-                Quaternion q = Quaternion.FromToRotation(rot * face.GetEstimatedNormal(), new Vector3(0, 0, -10));
+                Quaternion q = Quaternion.FromToRotation(rot * face.GetEstimatedNormal()  ,  new Vector3(0,0,-1));
+                Debug.DrawLine(new Vector3(0, 0, 0), transform.rotation * face.GetEstimatedNormal() * 10.0f, Color.blue);
 
-                Debug.DrawLine(Vector3.zero, rot * face.GetEstimatedNormal() * 10.0f, Color.blue, 10);
-                Debug.DrawLine(Vector3.zero, new Vector3(0, 0, -10) , Color.blue, 10);
-
-                // TODO!
                 //transform.Rotate(q.eulerAngles);
-                //transform.rotation = Quaternion.LookRotation( rot * face.GetEstimatedNormal());
+                Debug.DrawLine(new Vector3(0, 0, 0), transform.rotation * face.GetEstimatedNormal() * 10.0f, Color.red);
 
             }
             else
@@ -108,8 +106,10 @@ public class OSCReceiverFace : MonoBehaviour
             if (rotation < 1.0f)
                 rotation = 0.0f;
 
-            if (rotation >= 0.0 && rotation < 50.0f)
-                transform.Rotate(new Vector3(0.0f, rotation, 0.0f), Space.World);
+            if (rotation >= 0.0 && rotation < 50.0f) {
+
+                transform.Rotate(new Vector3(Random.Range(.0f, rotation), rotation, Random.Range(.0f, rotation)), Space.World);
+            }
             else
                 transform.Rotate(new Vector3(0.0f, 0.0f, 0.0f), Space.World);
 

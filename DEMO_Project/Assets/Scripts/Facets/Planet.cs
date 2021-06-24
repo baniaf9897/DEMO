@@ -153,7 +153,20 @@ public class Planet : MonoBehaviour
 
     public TerrainFace GetNextFace()
     {
-        currentFace ++;
+        float minDeg = 360.0f;
+        int index = 0;
+        for(int i = 0; i < terrainFaces.Length; i++)
+        {
+            if(Vector3.Angle(transform.rotation * terrainFaces[i].GetEstimatedNormal(), Vector3.back ) < minDeg)
+            {
+                Debug.Log(Vector3.Angle(transform.rotation * terrainFaces[i].GetEstimatedNormal(), Vector3.back));
+                minDeg = Vector3.Angle(transform.rotation * terrainFaces[i].GetEstimatedNormal(), Vector3.back);
+                index = i;
+            } 
+        }
+        currentFace = index;
+
+        //currentFace ++;
         if(currentFace >= terrainFaces.Length)
         {
             currentFace = 0;
