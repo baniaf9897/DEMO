@@ -13,8 +13,8 @@ public class ShapeGenerator
         randomManager.m_gain = 0.01f;
         randomManager.m_lacunarity = 0.01f;
         randomManager.m_NumOctaves = 6;
-        randomManager.m_offsetX = 0.0f; //Random.Range(0,100);
-        randomManager.m_offsetY = 0.5f; //Random.Range(-10, 100);
+        randomManager.m_offsetX = -30.0f; //Random.Range(0,100);
+        randomManager.m_offsetY = 99.0f; //Random.Range(-10, 100);
         randomManager.m_offsetZ = -10.0f;// Random.Range(10, 100);
         randomManager.m_ridges = 0.0f;
     }
@@ -38,8 +38,12 @@ public class ShapeGenerator
 
     public float GetSphereHeight(Vector3 worldpos, RandomManager randomManager)
     {
-        float height = 1.0f*  (Get3DHeight(worldpos.x, worldpos.y, worldpos.z, randomManager));
-        return height;
+        if(randomManager.m_frequency > 0.01f)
+        {
+            return 1.3f * (Get3DHeight(worldpos.x, worldpos.y, worldpos.z, randomManager));
+        }
+        else
+        return  1.0f*  (Get3DHeight(worldpos.x, worldpos.y, worldpos.z, randomManager));
     }
 
 }

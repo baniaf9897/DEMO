@@ -28,7 +28,6 @@ public struct RandomManager
     {
         if(m_frequency + freq < OSCReceiverFace.minFreq || m_frequency + freq > OSCReceiverFace.maxFreq)
         {
-            Debug.Log("out of range freq" + m_frequency + freq);
             return;
         }
 
@@ -39,8 +38,6 @@ public struct RandomManager
     {
         if (m_lacunarity + luc < OSCReceiverFace.minLuc || m_lacunarity + luc > OSCReceiverFace.maxLuc)
         {
-            Debug.Log("out of range luc" + m_lacunarity + luc);
-
             return;
         }
 
@@ -51,8 +48,6 @@ public struct RandomManager
     {
         if (m_gain + gain < OSCReceiverFace.minGain || m_gain + gain > OSCReceiverFace.maxGain)
         {
-            Debug.Log("out of range gain" + m_gain + gain);
-
             return;
         }
 

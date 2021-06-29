@@ -25,13 +25,16 @@ public class OSCReceiverFace : MonoBehaviour
 
 
     static public float minFreq = 0.0f;
-    static public float maxFreq = 10.0f;
+    static public float maxFreq = 20.0f;
 
     static public float minLuc = 0.0f;
-    static public float maxLuc = 10.0f;
+    static public float maxLuc = 20.0f;
 
     static public float minGain = 0.0f;
-    static public float maxGain = 2.0f;
+    static public float maxGain = 10.0f;
+
+
+    bool needToUpdate = false;
 
     // Start is called before the first frame update
     void Start()
@@ -63,22 +66,22 @@ public class OSCReceiverFace : MonoBehaviour
                 
 
                 oldColor = faceGameObject.GetComponent<Renderer>().material.color;
-                faceGameObject.GetComponent<Renderer>().material.color = new Color(1, 0, 0);
+                faceGameObject.GetComponent<Renderer>().material.color = new Color(0.96f, 0.75f, 0.73f);
 
 
-                Quaternion rot = transform.rotation;
+               /* Quaternion rot = transform.rotation;
                 Quaternion q = Quaternion.FromToRotation(rot * face.GetEstimatedNormal()  ,  new Vector3(0,0,-1));
                 Debug.DrawLine(new Vector3(0, 0, 0), transform.rotation * face.GetEstimatedNormal() * 10.0f, Color.blue);
 
                 //transform.Rotate(q.eulerAngles);
-                Debug.DrawLine(new Vector3(0, 0, 0), transform.rotation * face.GetEstimatedNormal() * 10.0f, Color.red);
+                Debug.DrawLine(new Vector3(0, 0, 0), transform.rotation * face.GetEstimatedNormal() * 10.0f, Color.red);*/
 
             }
             else
             {
                 //Take a screenshot every time active interaction is finished
                 Debug.Log(Application.dataPath + "/Screenshots/" + GetCurrentTime());
-                ScreenCapture.CaptureScreenshot(Application.dataPath + "/Screenshots/" + GetCurrentTime() + ".png");
+               // ScreenCapture.CaptureScreenshot(Application.dataPath + "/Screenshots/" + GetCurrentTime() + ".png");
             }
         }
     
@@ -88,56 +91,63 @@ public class OSCReceiverFace : MonoBehaviour
         spectralFlux = message.GetFloat(2);
         spectralSharpness = message.GetFloat(3);
         volume = message.GetFloat(4);
-        
+        needToUpdate = true;
     }
 
     // Update is called once per frame
     void Update()
     {
+        if (needToUpdate) { 
+            frequency = spectralCentroid * (maxFreq - minFreq) + minFreq  ;
+            lucranity = spectralSharpness * (maxLuc - minLuc) + minLuc ;
+            gain = ( 1 - volume * volume) * (maxGain - minGain) + minGain;
 
-        frequency = spectralSharpness * (maxFreq - minFreq) + minFreq;
-        lucranity = spectralFlux * (maxLuc - minLuc) + minLuc;
-        gain = (1 - volume) * (maxGain - minGain) + minGain;
 
+            if (activeInteraction == 0)
+            {
+                volume -= Time.deltaTime;
+                rotation = volume * volume * volume * 5.0f;
+                if (rotation < 1.0f)
+                    rotation = 0.0f;
 
-        if (activeInteraction == 0)
-        {
-            rotation = volume * volume * volume * 5.0f;
-            if (rotation < 1.0f)
-                rotation = 0.0f;
+                if (rotation >= 0.0 && rotation < 50.0f) {
 
-            if (rotation >= 0.0 && rotation < 50.0f) {
+                    transform.Rotate(new Vector3(Random.Range(.0f, 2.0f * rotation), rotation, Random.Range(.0f, 2.0f * rotation)), Space.World);
+                }
+                else
+                    transform.Rotate(new Vector3(0.0f, 0.0f, 0.0f), Space.World);
 
-                transform.Rotate(new Vector3(Random.Range(.0f, rotation), rotation, Random.Range(.0f, rotation)), Space.World);
             }
             else
-                transform.Rotate(new Vector3(0.0f, 0.0f, 0.0f), Space.World);
-
-           
-
-        }
-        else
-        {
-            planet = transform.GetComponent<Planet>();
-            TerrainFace face = planet.GetCurrentFace();           
+            {
+                planet = transform.GetComponent<Planet>();
+                TerrainFace face = planet.GetCurrentFace();           
             
-           if (frequency < face.shapeGenerator.randomManager.m_frequency)
-            {
-                face.shapeGenerator.randomManager.addFreq(-1 * frequency / 100.0f);
-                face.shapeGenerator.randomManager.addLuc(-1 * lucranity / 100.0f);
-                face.shapeGenerator.randomManager.addGain(-1 * gain / 100.0f); 
-            }
-            else
-            {
-                face.shapeGenerator.randomManager.addFreq(frequency / 100.0f);
-                face.shapeGenerator.randomManager.addLuc(lucranity / 100.0f);
-                face.shapeGenerator.randomManager.addGain(gain / 100.0f);
-            }
-           
+               if (frequency < face.shapeGenerator.randomManager.m_frequency)
+                {
+                  
+                    face.shapeGenerator.randomManager.addFreq(-1 * frequency / 100.0f);
+                    Debug.Log("Freq " + face.shapeGenerator.randomManager.m_frequency);
+                    face.shapeGenerator.randomManager.addLuc(-1 * frequency / 100.0f);
+                    face.shapeGenerator.randomManager.addGain(-1 * frequency / 100.0f);
+                    Debug.Log("Gain " + face.shapeGenerator.randomManager.m_gain);
 
-            face.ConstructMesh();
+                }
+                else
+                {
+                    face.shapeGenerator.randomManager.addFreq(frequency / 100.0f);
+                    Debug.Log("Freq " + face.shapeGenerator.randomManager.m_frequency);
+                    face.shapeGenerator.randomManager.addLuc(lucranity / 100.0f);
+                    face.shapeGenerator.randomManager.addGain(gain / 100.0f);
+                    Debug.Log("Gain " + face.shapeGenerator.randomManager.m_gain);
+
+                }
+
+
+                face.ConstructMesh();
+                needToUpdate = false;
+            }
         }
-
 
     }
 
