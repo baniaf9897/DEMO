@@ -28,10 +28,10 @@ public class OSCReceiverFace : MonoBehaviour
     static public float maxFreq = 20.0f;
 
     static public float minLuc = 0.0f;
-    static public float maxLuc = 20.0f;
+    static public float maxLuc = 30.0f;
 
     static public float minGain = 0.0f;
-    static public float maxGain = 10.0f;
+    static public float maxGain = 1.2f;
 
 
     bool needToUpdate = false;
@@ -60,22 +60,11 @@ public class OSCReceiverFace : MonoBehaviour
 
             if(message.GetInt(0) == 1)
             {
-                TerrainFace face = planet.GetNextFace();
-
+                planet.GetNextFace();
                 faceGameObject = planet.GetCurrentFaceGameObject();
-                
-
+             
                 oldColor = faceGameObject.GetComponent<Renderer>().material.color;
                 faceGameObject.GetComponent<Renderer>().material.color = new Color(0.96f, 0.75f, 0.73f);
-
-
-               /* Quaternion rot = transform.rotation;
-                Quaternion q = Quaternion.FromToRotation(rot * face.GetEstimatedNormal()  ,  new Vector3(0,0,-1));
-                Debug.DrawLine(new Vector3(0, 0, 0), transform.rotation * face.GetEstimatedNormal() * 10.0f, Color.blue);
-
-                //transform.Rotate(q.eulerAngles);
-                Debug.DrawLine(new Vector3(0, 0, 0), transform.rotation * face.GetEstimatedNormal() * 10.0f, Color.red);*/
-
             }
             else
             {
@@ -91,28 +80,28 @@ public class OSCReceiverFace : MonoBehaviour
         spectralFlux = message.GetFloat(2);
         spectralSharpness = message.GetFloat(3);
         volume = message.GetFloat(4);
+
+        frequency = spectralCentroid * (maxFreq - minFreq) + minFreq;
+        lucranity = (spectralCentroid + spectralFlux)  * (maxLuc - minLuc) + minLuc;
+        gain =   spectralFlux  * (maxGain - minGain) + minGain;
+
         needToUpdate = true;
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (needToUpdate) { 
-            frequency = spectralCentroid * (maxFreq - minFreq) + minFreq  ;
-            lucranity = spectralSharpness * (maxLuc - minLuc) + minLuc ;
-            gain = ( 1 - volume * volume) * (maxGain - minGain) + minGain;
-
+        if (needToUpdate) {
 
             if (activeInteraction == 0)
             {
-                volume -= Time.deltaTime;
-                rotation = volume * volume * volume * 5.0f;
+                rotation = volume * volume * volume * 10.0f;
                 if (rotation < 1.0f)
                     rotation = 0.0f;
 
                 if (rotation >= 0.0 && rotation < 50.0f) {
 
-                    transform.Rotate(new Vector3(Random.Range(.0f, 2.0f * rotation), rotation, Random.Range(.0f, 2.0f * rotation)), Space.World);
+                    transform.Rotate(new Vector3(Random.Range(-2.0f, 2.0f * rotation), rotation, Random.Range(-2.0f, 2.0f * rotation)), Space.World);
                 }
                 else
                     transform.Rotate(new Vector3(0.0f, 0.0f, 0.0f), Space.World);
@@ -120,35 +109,49 @@ public class OSCReceiverFace : MonoBehaviour
             }
             else
             {
-                planet = transform.GetComponent<Planet>();
-                TerrainFace face = planet.GetCurrentFace();           
-            
-               if (frequency < face.shapeGenerator.randomManager.m_frequency)
+                if(volume > 0.3f)
                 {
-                  
-                    face.shapeGenerator.randomManager.addFreq(-1 * frequency / 100.0f);
-                    Debug.Log("Freq " + face.shapeGenerator.randomManager.m_frequency);
-                    face.shapeGenerator.randomManager.addLuc(-1 * frequency / 100.0f);
-                    face.shapeGenerator.randomManager.addGain(-1 * frequency / 100.0f);
-                    Debug.Log("Gain " + face.shapeGenerator.randomManager.m_gain);
+                    planet = transform.GetComponent<Planet>();
+                    TerrainFace face = planet.GetCurrentFace();
 
-                }
-                else
-                {
+                    frequency = frequency - face.shapeGenerator.randomManager.m_frequency;
+                    lucranity = lucranity - face.shapeGenerator.randomManager.m_lacunarity;
+                    gain = (gain - face.shapeGenerator.randomManager.m_gain) / 5.0f ;
+
+
                     face.shapeGenerator.randomManager.addFreq(frequency / 100.0f);
-                    Debug.Log("Freq " + face.shapeGenerator.randomManager.m_frequency);
                     face.shapeGenerator.randomManager.addLuc(lucranity / 100.0f);
                     face.shapeGenerator.randomManager.addGain(gain / 100.0f);
-                    Debug.Log("Gain " + face.shapeGenerator.randomManager.m_gain);
 
+                    face.ConstructMesh();
                 }
+             };
 
+                /*if (frequency < face.shapeGenerator.randomManager.m_frequency && volume > 0.3f)
+                 {
 
-                face.ConstructMesh();
+                     frequency = frequency - face.shapeGenerator.randomManager.m_frequency;
+                     lucranity = lucranity - face.shapeGenerator.randomManager.m_lacunarity;
+                     gain = gain - face.shapeGenerator.randomManager.m_gain;
+
+                     face.shapeGenerator.randomManager.addFreq(-1 * frequency / 100.0f);
+                     face.shapeGenerator.randomManager.addLuc(-1 * frequency / 100.0f);
+                     face.shapeGenerator.randomManager.addGain(-1 * frequency / 100.0f);
+
+                 }
+                 else if(frequency > face.shapeGenerator.randomManager.m_frequency && volume > 0.3f)
+                 {
+                     frequency = frequency - face.shapeGenerator.randomManager.m_frequency;
+                     lucranity = lucranity - face.shapeGenerator.randomManager.m_lacunarity;
+                     gain = gain - face.shapeGenerator.randomManager.m_gain;
+
+                     face.shapeGenerator.randomManager.addFreq(frequency / 100.0f);
+                     face.shapeGenerator.randomManager.addLuc(lucranity / 100.0f);
+                     face.shapeGenerator.randomManager.addGain(gain / 100.0f);
+
+                 }*/
                 needToUpdate = false;
             }
-        }
-
     }
 
     string GetCurrentTime()

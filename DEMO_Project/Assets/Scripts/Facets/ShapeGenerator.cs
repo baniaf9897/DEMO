@@ -40,7 +40,7 @@ public class ShapeGenerator
     {
         if(randomManager.m_frequency > 0.01f)
         {
-            return 1.3f * (Get3DHeight(worldpos.x, worldpos.y, worldpos.z, randomManager));
+            return 1.15f * (Get3DHeight(worldpos.x, worldpos.y, worldpos.z, randomManager));
         }
         else
         return  1.0f*  (Get3DHeight(worldpos.x, worldpos.y, worldpos.z, randomManager));
