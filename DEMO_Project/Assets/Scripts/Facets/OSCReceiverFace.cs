@@ -31,7 +31,7 @@ public class OSCReceiverFace : MonoBehaviour
     static public float maxLuc = 30.0f;
 
     static public float minGain = 0.0f;
-    static public float maxGain = 1.2f;
+    static public float maxGain = 1.1f;
 
 
     bool needToUpdate = false;
@@ -70,7 +70,7 @@ public class OSCReceiverFace : MonoBehaviour
             {
                 //Take a screenshot every time active interaction is finished
                 Debug.Log(Application.dataPath + "/Screenshots/" + GetCurrentTime());
-               // ScreenCapture.CaptureScreenshot(Application.dataPath + "/Screenshots/" + GetCurrentTime() + ".png");
+                ScreenCapture.CaptureScreenshot(Application.dataPath + "/Screenshots/" + GetCurrentTime() + ".png");
             }
         }
     
@@ -118,7 +118,7 @@ public class OSCReceiverFace : MonoBehaviour
                     lucranity = lucranity - face.shapeGenerator.randomManager.m_lacunarity;
                     gain = (gain - face.shapeGenerator.randomManager.m_gain) / 5.0f ;
 
-
+                    Debug.Log(frequency);
                     face.shapeGenerator.randomManager.addFreq(frequency / 100.0f);
                     face.shapeGenerator.randomManager.addLuc(lucranity / 100.0f);
                     face.shapeGenerator.randomManager.addGain(gain / 100.0f);
