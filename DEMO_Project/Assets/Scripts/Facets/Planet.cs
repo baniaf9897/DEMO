@@ -79,6 +79,12 @@ public class Planet : MonoBehaviour
         Initialize();
         GenerateMesh();
     }
+
+    private void Start()
+    {
+        Initialize();
+        GenerateMesh();
+    }
     void Initialize()
     {
 
