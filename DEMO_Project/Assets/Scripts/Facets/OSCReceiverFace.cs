@@ -10,7 +10,7 @@ public class OSCReceiverFace : MonoBehaviour
 
 
     float rotation = 0.0f;
-    Color oldColor = new Color(0,0.96f,1);
+    Color oldColor = new Color(1.0f,0.962828f,0.8349056f);
 
 
     int activeInteraction;
@@ -64,7 +64,7 @@ public class OSCReceiverFace : MonoBehaviour
                 faceGameObject = planet.GetCurrentFaceGameObject();
              
                 oldColor = faceGameObject.GetComponent<Renderer>().material.color;
-                faceGameObject.GetComponent<Renderer>().material.color = new Color(0.96f, 0.75f, 0.73f);
+                faceGameObject.GetComponent<Renderer>().material.color = new Color(1.0f, 0.4858491f, 0.7122045f);
             }
             else
             {
@@ -86,6 +86,8 @@ public class OSCReceiverFace : MonoBehaviour
         gain =   spectralFlux  * (maxGain - minGain) + minGain;
 
         needToUpdate = true;
+        rotation = volume * volume * volume * 7.0f;
+
     }
 
     // Update is called once per frame
@@ -95,17 +97,19 @@ public class OSCReceiverFace : MonoBehaviour
 
             if (activeInteraction == 0)
             {
-                rotation = volume * volume * volume * 10.0f;
-                if (rotation < 1.0f)
+                rotation -= Time.deltaTime * 100.0f;
+                Debug.Log(rotation);
+                if (rotation < 0.0f)
                     rotation = 0.0f;
 
-                if (rotation >= 0.0 && rotation < 50.0f) {
+                if (rotation >= 0.0 && rotation < 1.0f) {
 
-                    transform.Rotate(new Vector3(Random.Range(-2.0f, 2.0f * rotation), rotation, Random.Range(-2.0f, 2.0f * rotation)), Space.World);
+                    transform.Rotate(new Vector3(Random.Range(0, 2.0f * rotation), rotation, Random.Range(0, 2.0f * rotation)), Space.World);
                 }
-                else
-                    transform.Rotate(new Vector3(0.0f, 0.0f, 0.0f), Space.World);
-
+                else {
+                    rotation = 5.0f;
+                    transform.Rotate(new Vector3(Random.Range(-1* rotation, 1 * rotation), Random.Range(-1 * rotation, 1 * rotation), Random.Range(-1 * rotation, 1 * rotation)), Space.World);
+                }
             }
             else
             {
@@ -118,7 +122,6 @@ public class OSCReceiverFace : MonoBehaviour
                     lucranity = lucranity - face.shapeGenerator.randomManager.m_lacunarity;
                     gain = (gain - face.shapeGenerator.randomManager.m_gain) / 5.0f ;
 
-                    Debug.Log(frequency);
                     face.shapeGenerator.randomManager.addFreq(frequency / 100.0f);
                     face.shapeGenerator.randomManager.addLuc(lucranity / 100.0f);
                     face.shapeGenerator.randomManager.addGain(gain / 100.0f);
